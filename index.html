@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Toma - AI Recipe Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+      body {
+        font-family: 'Poppins', sans-serif;
+      }
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-fadeInUp {
+        animation: fadeInUp 0.5s ease-out forwards;
+      }
+      /* Styles for html2canvas image generation */
+      .print-mode {
+        background: white !important;
+        backdrop-filter: none !important;
+      }
+      .print-mode * {
+        color: #1f2937 !important;
+      }
+      .print-mode h2 {
+        background: none !important;
+        color: #065f46 !important;
+        text-shadow: none !important;
+        -webkit-text-fill-color: initial !important;
+      }
+      .print-mode h3 {
+        color: #047857 !important;
+      }
+      .print-mode div[class*="bg-emerald-50/50"] {
+        background-color: #ecfdf5 !important;
+      }
+
+      /* Flashy title effect */
+      @keyframes shimmer {
+        from { transform: translateX(-150%); }
+        to { transform: translateX(150%); }
+      }
+      .shimmer-text {
+        position: relative;
+        overflow: hidden;
+      }
+      .shimmer-text::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: linear-gradient(
+          100deg,
+          rgba(255, 255, 255, 0) 20%,
+          rgba(255, 255, 255, 0.4) 50%,
+          rgba(255, 255, 255, 0) 80%
+        );
+        animation: shimmer 4s infinite;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.16.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/"
+  }
+}
+</script>
+</head>
+  <body class="bg-emerald-50">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

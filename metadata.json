@@ -1,0 +1,5 @@
+{
+  "name": "Toma",
+  "description": "An AI-powered recipe generator that creates delicious, halal, and Malaysia-friendly dishes from the ingredients you have on hand. Includes language support for English and Bahasa Melayu.",
+  "requestFramePermissions": []
+}
