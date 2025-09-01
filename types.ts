@@ -21,15 +21,11 @@ export interface UiText {
   generateButtonLoading: string;
   recipeIngredients: string;
   recipeInstructions: string;
-  imageDownload: string;
   exportTitle: string;
   saveAsText: string;
-  saveAsImage: string;
-  saveAsImageSaving: string;
   share: string;
   shareCopied: string;
   errorPrefix: string;
   errorIngredients: string;
   loadingMessageRecipe: string;
-  loadingMessageImage: string;
 }

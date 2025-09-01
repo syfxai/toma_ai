@@ -1,12 +1,13 @@
 import React, { useState, useCallback } from 'react';
 import type { Language, Recipe, UiText, LanguageCode } from './types';
-import { generateRecipe, generateRecipeImage, translateContent } from './services/geminiService';
+import { generateRecipe, translateContent } from './services/geminiService';
 import Header from './components/Header';
 import LanguageSelector from './components/LanguageToggle';
 import IngredientInput from './components/IngredientInput';
 import RecipeDisplay from './components/RecipeDisplay';
 import LoadingSpinner from './components/LoadingSpinner';
 import Footer from './components/Footer';
+import ScrollToTopButton from './components/ScrollToTopButton';
 
 const LANGUAGES: Language[] = [
   { code: 'en', name: 'English' },
@@ -27,17 +28,13 @@ const DEFAULT_UI_TEXT: UiText = {
   generateButtonLoading: "Generating...",
   recipeIngredients: "Ingredients",
   recipeInstructions: "Instructions",
-  imageDownload: "Download Image",
   exportTitle: "Export Recipe",
   saveAsText: "Save as Text",
-  saveAsImage: "Save as Image",
-  saveAsImageSaving: "Saving...",
   share: "Share",
   shareCopied: "Copied!",
   errorPrefix: "Failed to generate recipe:",
   errorIngredients: "Please enter some ingredients.",
   loadingMessageRecipe: "Thinking of a delicious recipe...",
-  loadingMessageImage: "Creating a beautiful image of the dish...",
 };
 
 const App: React.FC = () => {
@@ -48,7 +45,6 @@ const App: React.FC = () => {
   const [originalRecipe, setOriginalRecipe] = useState<Recipe | null>(null);
   const [recipe, setRecipe] = useState<Recipe | null>(null);
 
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isTranslating, setIsTranslating] = useState<boolean>(false);
   const [loadingMessage, setLoadingMessage] = useState<string>('');
@@ -111,7 +107,6 @@ const App: React.FC = () => {
     setError(null);
     setRecipe(null);
     setOriginalRecipe(null);
-    setImageUrl(null);
     // Reset to English on new recipe generation for a clean slate
     setLanguage('en');
     setUiText(DEFAULT_UI_TEXT);
@@ -122,10 +117,6 @@ const App: React.FC = () => {
       setRecipe(generatedRecipe);
       setOriginalRecipe(generatedRecipe);
 
-      setLoadingMessage(DEFAULT_UI_TEXT.loadingMessageImage);
-      const generatedImageUrl = await generateRecipeImage(generatedRecipe.recipeName);
-      setImageUrl(generatedImageUrl);
-
     } catch (e) {
       console.error(e);
       const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
@@ -135,17 +126,6 @@ const App: React.FC = () => {
       setLoadingMessage('');
     }
   }, [ingredients, uiText]);
-  
-  const handleDownloadImage = useCallback(() => {
-    if (!imageUrl || !recipe) return;
-    const link = document.createElement('a');
-    link.href = imageUrl;
-    const fileName = recipe.recipeName.toLowerCase().replace(/\s+/g, '_') + '.png';
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }, [imageUrl, recipe]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-100 text-gray-800 antialiased flex flex-col">
@@ -174,16 +154,15 @@ const App: React.FC = () => {
 
         {(isLoading || isTranslating) && <LoadingSpinner message={isLoading ? loadingMessage : 'Translating...'} />}
 
-        {recipe && imageUrl && !isLoading && (
+        {recipe && !isLoading && (
           <RecipeDisplay 
             recipe={recipe} 
-            imageUrl={imageUrl} 
-            onDownload={handleDownloadImage}
             uiText={uiText}
           />
         )}
       </main>
       <Footer />
+      <ScrollToTopButton />
     </div>
   );
 };

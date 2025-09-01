@@ -1,24 +1,15 @@
 import React, { useRef, useState, useEffect } from 'react';
 import type { Recipe, UiText } from '../types';
-import DownloadIcon from './icons/DownloadIcon';
 import FileTextIcon from './icons/FileTextIcon';
-import ImageIcon from './icons/ImageIcon';
 import ShareIcon from './icons/ShareIcon';
-
-
-// This tells TypeScript that html2canvas is available globally from the script tag in index.html
-declare const html2canvas: any;
 
 interface RecipeDisplayProps {
   recipe: Recipe;
-  imageUrl: string;
-  onDownload: () => void;
   uiText: UiText;
 }
 
-const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipe, imageUrl, onDownload, uiText }) => {
+const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipe, uiText }) => {
   const recipeCardRef = useRef<HTMLDivElement>(null);
-  const [isSavingImage, setIsSavingImage] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   
   const webShareSupported = typeof navigator !== 'undefined' && !!navigator.share;
@@ -53,31 +44,6 @@ const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipe, imageUrl, onDownl
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-  };
-
-  const handleDownloadPng = async () => {
-    const element = recipeCardRef.current;
-    if (!element) return;
-    
-    setIsSavingImage(true);
-    try {
-        element.classList.add('print-mode');
-        const canvas = await html2canvas(element, {
-            useCORS: true,
-            scale: 2 // Generate a higher resolution image
-        });
-        const link = document.createElement('a');
-        link.href = canvas.toDataURL('image/png');
-        link.download = `${recipe.recipeName.toLowerCase().replace(/\s+/g, '_')}_recipe.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    } catch (error) {
-        console.error("Error saving recipe as image:", error);
-    } finally {
-        element.classList.remove('print-mode');
-        setIsSavingImage(false);
-    }
   };
   
   const handleShare = async () => {
@@ -122,28 +88,11 @@ const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipe, imageUrl, onDownl
         </h2>
         <p className="mt-2 text-gray-600 italic max-w-2xl mx-auto">{recipe.description}</p>
       </div>
-
-      <div className="mb-8">
-        <div className="relative group">
-          <img src={imageUrl} alt={recipe.recipeName} className="w-full h-auto object-cover rounded-xl shadow-lg" />
-          <button
-            onClick={onDownload}
-            className="absolute bottom-4 right-4 flex items-center gap-2 bg-gray-900 bg-opacity-60 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-opacity-80 transition-all opacity-0 group-hover:opacity-100"
-          >
-            <DownloadIcon className="w-4 h-4"/>
-            {uiText.imageDownload}
-          </button>
-        </div>
-        <p className="text-xs text-gray-500 italic text-center mt-2">
-          This image is for illustration purposes, not the actual product.
-        </p>
-      </div>
       
       <div className="text-center my-8 py-4 border-y border-gray-200/80">
         <h4 className="text-sm font-bold uppercase text-gray-500 tracking-wider mb-4">{uiText.exportTitle}</h4>
         <div className="flex flex-wrap justify-center items-center gap-4">
             <ExportButton onClick={handleDownloadTxt} icon={<FileTextIcon className="w-5 h-5 text-emerald-700" />} text={uiText.saveAsText} />
-            <ExportButton onClick={handleDownloadPng} disabled={isSavingImage} icon={<ImageIcon className="w-5 h-5 text-emerald-700" />} text={isSavingImage ? uiText.saveAsImageSaving : uiText.saveAsImage} />
             <ExportButton onClick={handleShare} icon={<ShareIcon className="w-5 h-5 text-emerald-700" />} text={!webShareSupported && isCopied ? uiText.shareCopied : uiText.share} />
         </div>
       </div>

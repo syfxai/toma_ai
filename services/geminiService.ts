@@ -49,31 +49,6 @@ export const generateRecipe = async (ingredients: string): Promise<Recipe> => {
   }
 };
 
-export const generateRecipeImage = async (recipeName: string): Promise<string> => {
-  const prompt = `A delicious, photorealistic, professionally shot photo of "${recipeName}", a Malaysian dish. Served on a beautiful plate, with natural lighting, creating an appetizing and high-quality food photography look.`;
-  try {
-    const response = await ai.models.generateImages({
-        model: 'imagen-4.0-generate-001',
-        prompt: prompt,
-        config: {
-          numberOfImages: 1,
-          outputMimeType: 'image/png',
-          aspectRatio: '1:1',
-        },
-    });
-    
-    if (response.generatedImages && response.generatedImages.length > 0) {
-        const base64ImageBytes: string = response.generatedImages[0].image.imageBytes;
-        return `data:image/png;base64,${base64ImageBytes}`;
-    } else {
-        throw new Error("No image was generated.");
-    }
-  } catch (error) {
-    console.error("Error generating image:", error);
-    throw new Error("The camera seems to be broken. Could not generate an image.");
-  }
-};
-
 export const translateContent = async (content: object, languageName: string): Promise<any> => {
   const prompt = `Translate all string values in the following JSON object to ${languageName}. Do not translate keys. Respond with only the translated JSON object, maintaining the exact same structure and keys. If a value is an array of strings, translate each string in the array.
   
