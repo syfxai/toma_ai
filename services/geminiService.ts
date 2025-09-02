@@ -1,5 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import type { GeneratedRecipe } from '../types';
+import type { Recipe } from '../types';
 
 if (!process.env.API_KEY) {
   throw new Error("API_KEY environment variable not set");
@@ -7,7 +7,7 @@ if (!process.env.API_KEY) {
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-const parseJsonResponse = (text: string): GeneratedRecipe => {
+const parseJsonResponse = (text: string): Recipe => {
   // Find the JSON block, which might be wrapped in markdown or have leading/trailing text
   const match = text.match(/\{[\s\S]*\}/);
   if (!match) {
@@ -16,7 +16,7 @@ const parseJsonResponse = (text: string): GeneratedRecipe => {
   return JSON.parse(match[0]);
 };
 
-export const generateRecipe = async (ingredients: string): Promise<GeneratedRecipe> => {
+export const generateRecipe = async (ingredients: string): Promise<Recipe> => {
   const prompt = `You are an expert Malaysian home cook, passionate about creating authentic and delicious local dishes. Your primary task is to analyze the provided ingredients and determine the **most logical and delicious type of Malaysian dish** to create. Use your culinary judgment.
 
 **Provided Ingredients:**
@@ -57,7 +57,7 @@ You MUST respond with ONLY a single JSON object that strictly adheres to the fol
     });
 
     const jsonText = response.text.trim();
-    const recipeData: GeneratedRecipe = parseJsonResponse(jsonText);
+    const recipeData: Recipe = parseJsonResponse(jsonText);
     return recipeData;
   } catch (error) {
     console.error("Error generating recipe:", error);

@@ -5,15 +5,13 @@ import FileTextIcon from './icons/FileTextIcon';
 import ShareIcon from './icons/ShareIcon';
 import ImageIcon from './icons/ImageIcon';
 import RecipeImageExport from './RecipeImageExport';
-import Rating from './Rating';
 
 interface RecipeDisplayProps {
   recipe: Recipe;
   uiText: UiText;
-  onRatingSubmit: (recipeId: string, recipeName: string, rating: number) => Promise<void>;
 }
 
-const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipe, uiText, onRatingSubmit }) => {
+const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipe, uiText }) => {
   const recipeCardRef = useRef<HTMLDivElement>(null);
   const exportImageRef = useRef<HTMLDivElement>(null);
   const [isCopied, setIsCopied] = useState(false);
@@ -83,13 +81,16 @@ const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipe, uiText, onRatingS
       try {
         await navigator.share({
           title: `Toma AI Recipe: ${recipe.recipeName}`,
-          text: shareText,
+          text: shareText, // Include the full recipe text
+          url: 'https://toma-recipe.ai/', 
         });
       } catch (error) {
-        console.error("Error sharing recipe:", error);
+        // User might cancel the share, which throws an error.
+        // We can log it but don't need to show an alert.
+        console.log("Web Share API error:", error);
       }
     } else {
-      // Fallback to clipboard
+      // Fallback to clipboard for browsers that don't support Web Share API
       try {
         await navigator.clipboard.writeText(shareText);
         setIsCopied(true);
@@ -121,9 +122,7 @@ const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipe, uiText, onRatingS
           <p className="mt-2 text-gray-600 italic max-w-2xl mx-auto">{recipe.description}</p>
         </div>
         
-        <Rating recipe={recipe} uiText={uiText} onRatingSubmit={onRatingSubmit} />
-        
-        <div className="text-center my-8">
+        <div className="text-center my-8 py-4 border-y border-gray-200/80">
           <h4 className="text-sm font-bold uppercase text-gray-500 tracking-wider mb-4">{uiText.exportTitle}</h4>
           <div className="flex flex-wrap justify-center items-center gap-4">
               <ExportButton onClick={handleDownloadTxt} icon={<FileTextIcon className="w-5 h-5 text-emerald-700" />} text={uiText.saveAsText} />
