@@ -80,8 +80,24 @@ const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipe, uiText }) => {
     if (!exportPdfRef.current) return;
     setIsSavingPdf(true);
 
+    // Create a clone to render off-screen at full A4 width to ensure mobile doesn't shrink it
+    const originalEl = exportPdfRef.current;
+    const clone = originalEl.cloneNode(true) as HTMLElement;
+    
+    // Style the clone to be rendered but invisible and not affect layout
+    clone.style.position = 'absolute';
+    clone.style.top = '0';
+    clone.style.left = '-9999px'; // Position it off-screen
+    clone.style.zIndex = '-1';
+    clone.style.width = '210mm'; // Force A4 width
+    
+    document.body.appendChild(clone);
+
     try {
-      const canvas = await html2canvas(exportPdfRef.current, {
+      // Allow the browser a moment to render the clone
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
+      const canvas = await html2canvas(clone, {
         scale: 2.5, // Higher scale for better PDF quality
         useCORS: true,
         logging: false,
@@ -107,12 +123,11 @@ const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipe, uiText }) => {
       const contentWidth = pdfWidth - (margin * 2);
       let contentHeight = contentWidth / canvasAspectRatio;
 
-      // If content is too tall, it will be scaled down to fit, maintaining aspect ratio
       if (contentHeight > pdfHeight - (margin * 2)) {
         contentHeight = pdfHeight - (margin * 2);
       }
 
-      const topPosition = (pdfHeight - contentHeight) / 2; // Center vertically
+      const topPosition = (pdfHeight - contentHeight) / 2;
 
       pdf.addImage(imgData, 'PNG', margin, topPosition, contentWidth, contentHeight);
       pdf.save(`${recipe.recipeName.replace(/\s/g, '_')}_recipe.pdf`);
@@ -121,6 +136,7 @@ const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipe, uiText }) => {
       console.error('Error generating PDF:', error);
       alert('Sorry, there was an error creating the PDF.');
     } finally {
+      document.body.removeChild(clone); // Always clean up the clone
       setIsSavingPdf(false);
     }
   };
