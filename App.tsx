@@ -35,6 +35,7 @@ const DEFAULT_UI_TEXT_EN: UiText = {
   saveAsImageSaving: "Saving...",
   share: "Share",
   shareCopied: "Copied!",
+  sharePreparing: "Preparing Share...",
   errorPrefix: "Failed to generate recipe:",
   errorIngredients: "Please enter some ingredients.",
   loadingMessages: [
@@ -64,6 +65,7 @@ const DEFAULT_UI_TEXT_MS: UiText = {
   saveAsImageSaving: "Sedang menyimpan...",
   share: "Kongsi",
   shareCopied: "Telah disalin!",
+  sharePreparing: "Menyediakan...",
   errorPrefix: "Gagal menjana resepi:",
   errorIngredients: "Sila masukkan bahan-bahan anda.",
   loadingMessages: [

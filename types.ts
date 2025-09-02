@@ -28,6 +28,7 @@ export interface UiText {
   saveAsImageSaving: string;
   share: string;
   shareCopied: string;
+  sharePreparing: string;
   errorPrefix: string;
   errorIngredients: string;
   loadingMessages: string[];
