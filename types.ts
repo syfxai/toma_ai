@@ -30,5 +30,6 @@ export interface UiText {
   shareCopied: string;
   errorPrefix: string;
   errorIngredients: string;
-  loadingMessageRecipe: string;
+  loadingMessages: string[];
+  translatingMessage: string;
 }

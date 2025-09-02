@@ -37,7 +37,15 @@ const DEFAULT_UI_TEXT_EN: UiText = {
   shareCopied: "Copied!",
   errorPrefix: "Failed to generate recipe:",
   errorIngredients: "Please enter some ingredients.",
-  loadingMessageRecipe: "Thinking of a delicious recipe...",
+  loadingMessages: [
+    "The AI Chef is thinking...",
+    "Chopping onions and chillies...",
+    "Heating up the pan...",
+    "Finding inspiration at the market...",
+    "Checking the secret recipe book...",
+    "Almost ready!"
+  ],
+  translatingMessage: "Translating...",
 };
 
 const DEFAULT_UI_TEXT_MS: UiText = {
@@ -58,7 +66,15 @@ const DEFAULT_UI_TEXT_MS: UiText = {
   shareCopied: "Telah disalin!",
   errorPrefix: "Gagal menjana resepi:",
   errorIngredients: "Sila masukkan bahan-bahan anda.",
-  loadingMessageRecipe: "Sedang mencari resepi yang lazat...",
+  loadingMessages: [
+    "Chef AI sedang berfikir...",
+    "Meracik bawang dan cili...",
+    "Memanaskan kuali...",
+    "Mencari ilham di pasar tani...",
+    "Menyemak buku resepi rahsia...",
+    "Hampir siap!"
+  ],
+  translatingMessage: "Menterjemah...",
 };
 
 const App: React.FC = () => {
@@ -71,7 +87,6 @@ const App: React.FC = () => {
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isTranslating, setIsTranslating] = useState<boolean>(false);
-  const [loadingMessage, setLoadingMessage] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 
   const handleLanguageChange = useCallback(async (newLangCode: LanguageCode) => {
@@ -133,7 +148,6 @@ const App: React.FC = () => {
     setOriginalRecipe(null);
     
     try {
-      setLoadingMessage(uiText.loadingMessageRecipe);
       const generatedRecipe = await generateRecipe(ingredients);
       setOriginalRecipe(generatedRecipe);
 
@@ -154,7 +168,6 @@ const App: React.FC = () => {
       setError(`${uiText.errorPrefix} ${errorMessage}`);
     } finally {
       setIsLoading(false);
-      setLoadingMessage('');
     }
   }, [ingredients, uiText, language]);
 
@@ -191,7 +204,7 @@ const App: React.FC = () => {
           {error && <p className="mt-4 text-center text-red-600 font-semibold">{error}</p>}
         </div>
 
-        {(isLoading || isTranslating) && <LoadingSpinner message={isLoading ? loadingMessage : 'Translating...'} />}
+        {(isLoading || isTranslating) && <LoadingSpinner messages={isLoading ? uiText.loadingMessages : [uiText.translatingMessage]} />}
 
         {recipe && !isLoading && (
           <RecipeDisplay 
