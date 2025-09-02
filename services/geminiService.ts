@@ -15,15 +15,15 @@ const parseJsonResponse = (text: string): Recipe => {
   }
   const recipe: Recipe = JSON.parse(match[0]);
   
-  const cleanCitations = (str: string) => str.replace(/\s*\[[\d,\s]+\]/g, '').trim();
+  const cleanCitations = (str: string) => str ? str.replace(/\s*\[[\d,\s]+\]/g, '').trim() : str;
 
   // Clean all user-facing text fields from any bracketed citations like [1], [2, 13], etc.
-  if (recipe.recipeName) {
-    recipe.recipeName = cleanCitations(recipe.recipeName);
-  }
-  if (recipe.description) {
-    recipe.description = cleanCitations(recipe.description);
-  }
+  if (recipe.recipeName) recipe.recipeName = cleanCitations(recipe.recipeName);
+  if (recipe.description) recipe.description = cleanCitations(recipe.description);
+  if (recipe.prepTime) recipe.prepTime = cleanCitations(recipe.prepTime);
+  if (recipe.cookTime) recipe.cookTime = cleanCitations(recipe.cookTime);
+  if (recipe.totalTime) recipe.totalTime = cleanCitations(recipe.totalTime);
+  if (recipe.servings) recipe.servings = cleanCitations(recipe.servings);
   if (recipe.ingredients && Array.isArray(recipe.ingredients)) {
     recipe.ingredients = recipe.ingredients.map(cleanCitations);
   }
@@ -68,7 +68,7 @@ export const generateRecipe = async (ingredients: string): Promise<Recipe> => {
 
 *   **Strictly Halal:** All recipes MUST be 100% halal. No pork, alcohol, or non-halal ingredients/methods. This is non-negotiable.
 *   **Practical for Home Cooks:** Instructions must be clear, step-by-step, and easy for a home cook to follow.
-*   **Language:** The entire JSON output, including recipe name, description, etc., must be in **English**.
+*   **Language:** The entire JSON output, including all keys and values, must be in **English**.
 
 **Output Format:**
 You MUST respond with ONLY a single JSON object that strictly adheres to the following structure. Do not include any text, explanations, or markdown formatting like \`\`\`json before or after the JSON object.
@@ -76,6 +76,10 @@ You MUST respond with ONLY a single JSON object that strictly adheres to the fol
 {
   "recipeName": "string",
   "description": "string (A short, enticing description of the dish, 2-3 sentences)",
+  "prepTime": "string (e.g., '15 minutes')",
+  "cookTime": "string (e.g., '30 minutes')",
+  "totalTime": "string (e.g., '45 minutes')",
+  "servings": "string (e.g., '4 servings' or 'Makes 12 pieces')",
   "ingredients": ["string", "string", ...],
   "instructions": ["string", "string", ...]
 }
