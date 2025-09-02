@@ -13,7 +13,25 @@ const parseJsonResponse = (text: string): Recipe => {
   if (!match) {
     throw new Error("Invalid JSON response from the AI model.");
   }
-  return JSON.parse(match[0]);
+  const recipe: Recipe = JSON.parse(match[0]);
+  
+  const cleanCitations = (str: string) => str.replace(/\s*\[[\d,\s]+\]/g, '').trim();
+
+  // Clean all user-facing text fields from any bracketed citations like [1], [2, 13], etc.
+  if (recipe.recipeName) {
+    recipe.recipeName = cleanCitations(recipe.recipeName);
+  }
+  if (recipe.description) {
+    recipe.description = cleanCitations(recipe.description);
+  }
+  if (recipe.ingredients && Array.isArray(recipe.ingredients)) {
+    recipe.ingredients = recipe.ingredients.map(cleanCitations);
+  }
+  if (recipe.instructions && Array.isArray(recipe.instructions)) {
+    recipe.instructions = recipe.instructions.map(cleanCitations);
+  }
+
+  return recipe;
 };
 
 export const generateRecipe = async (ingredients: string): Promise<Recipe> => {
@@ -87,7 +105,7 @@ ${ingredients}`;
 };
 
 export const translateContent = async (content: object, languageName: string): Promise<any> => {
-  const prompt = `Translate all string values in the following JSON object to ${languageName}. Do not translate keys. Respond with only the translated JSON object, maintaining the exact same structure and keys. If a value is an array of strings, translate each string in the array.
+  const prompt = `Translate all string values in the following JSON object to ${languageName}. The context is a food recipe, so be natural and use appropriate culinary terms for that language. Do not translate keys. Respond with only the translated JSON object, maintaining the exact same structure and keys. If a value is an array of strings, translate each string in the array.
   
   JSON to translate:
   ${JSON.stringify(content, null, 2)}`;
@@ -101,6 +119,7 @@ export const translateContent = async (content: object, languageName: string): P
       }
     });
     const jsonText = response.text.trim();
+    // FIX: Corrected typo from `jsontext` to `jsonText`.
     return JSON.parse(jsonText);
   } catch (error) {
     console.error(`Error translating content to ${languageName}:`, error);

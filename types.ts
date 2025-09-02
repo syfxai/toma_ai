@@ -33,4 +33,10 @@ export interface UiText {
   errorIngredients: string;
   loadingMessages: string[];
   translatingMessage: string;
+  tagline: string;
+  usageTips: string[];
+  feedbackButton: string;
+  feedbackSubject: string;
 }
+
+export type ExportImageLayout = 'mobile' | 'desktop';

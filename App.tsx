@@ -8,6 +8,7 @@ import RecipeDisplay from './components/RecipeDisplay';
 import LoadingSpinner from './components/LoadingSpinner';
 import Footer from './components/Footer';
 import ScrollToTopButton from './components/ScrollToTopButton';
+import UsageTips from './components/UsageTips';
 
 const LANGUAGES: Language[] = [
   { code: 'ms', name: 'Bahasa Melayu' },
@@ -29,7 +30,7 @@ const DEFAULT_UI_TEXT_EN: UiText = {
   resetButton: "Reset",
   recipeIngredients: "Ingredients",
   recipeInstructions: "Instructions",
-  exportTitle: "Export Recipe",
+  exportTitle: "Save Recipe",
   saveAsText: "Save as Text",
   saveAsImage: "Save as Image",
   saveAsImageSaving: "Saving...",
@@ -47,6 +48,18 @@ const DEFAULT_UI_TEXT_EN: UiText = {
     "Almost ready!"
   ],
   translatingMessage: "Translating...",
+  tagline: "Your AI Kitchen Assistant",
+  usageTips: [
+    "Tip: List the ingredients you have, like 'chicken, soy sauce, ginger'.",
+    "Tip: For a specific dish, just type its name, like 'Nasi Lemak recipe'.",
+    "Tip: You can add constraints, e.g., 'chicken, rice, spicy, quick'.",
+    "Tip: Change the language using the toggle at the top right.",
+    "Tip: Recipes aren't saved! Use the download buttons to keep them.",
+    "Tip: Share your creations with friends using the 'Share' button!",
+    "Tip: For custom app inquiries, contact the developer via the feedback link below.",
+  ],
+  feedbackButton: "Feedback",
+  feedbackSubject: "Feedback for Toma App",
 };
 
 const DEFAULT_UI_TEXT_MS: UiText = {
@@ -59,7 +72,7 @@ const DEFAULT_UI_TEXT_MS: UiText = {
   resetButton: "Set Semula",
   recipeIngredients: "Bahan-Bahan",
   recipeInstructions: "Cara Penyediaan",
-  exportTitle: "Eksport Resepi",
+  exportTitle: "Simpan Resepi",
   saveAsText: "Simpan sebagai Teks",
   saveAsImage: "Simpan sebagai Imej",
   saveAsImageSaving: "Sedang menyimpan...",
@@ -77,6 +90,18 @@ const DEFAULT_UI_TEXT_MS: UiText = {
     "Hampir siap!"
   ],
   translatingMessage: "Menterjemah...",
+  tagline: "Chef AI Peribadi Anda",
+  usageTips: [
+    "Petua: Senaraikan bahan-bahan yang anda ada, cth: 'ayam, kicap, halia'.",
+    "Petua: Untuk resepi spesifik, taip nama masakan, cth: 'resepi Nasi Lemak'.",
+    "Petua: Anda boleh tambah arahan, cth: 'ayam, nasi, pedas, cepat'.",
+    "Petua: Tukar bahasa menggunakan butang di penjuru kanan atas.",
+    "Petua: Resepi tidak disimpan! Guna butang muat turun untuk simpan.",
+    "Petua: Kongsi ciptaan anda dengan rakan menggunakan butang 'Kongsi'!",
+    "Petua: Untuk tempahan aplikasi, hubungi pembangun melalui pautan maklum balas di bawah.",
+  ],
+  feedbackButton: "Maklum Balas",
+  feedbackSubject: "Maklumbalas Aplikasi Toma",
 };
 
 const App: React.FC = () => {
@@ -90,6 +115,7 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isTranslating, setIsTranslating] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [showTips, setShowTips] = useState<boolean>(true);
 
   const handleLanguageChange = useCallback(async (newLangCode: LanguageCode) => {
     if (newLangCode === language) return;
@@ -103,7 +129,15 @@ const App: React.FC = () => {
       if (newLangCode === 'en') {
         setUiText(DEFAULT_UI_TEXT_EN);
         if (originalRecipe) setRecipe(originalRecipe);
-      } else {
+      } else if (newLangCode === 'ms') {
+        setUiText(DEFAULT_UI_TEXT_MS);
+        const targetLanguage = LANGUAGES.find(l => l.code === 'ms');
+         if (originalRecipe && targetLanguage) {
+            const translatedRecipe = await translateContent(originalRecipe, targetLanguage.name);
+            setRecipe(translatedRecipe);
+        }
+      }
+       else {
         const contentToTranslate = {
           ...DEFAULT_UI_TEXT_EN,
           ...(originalRecipe || {})
@@ -143,7 +177,8 @@ const App: React.FC = () => {
       setError(uiText.errorIngredients);
       return;
     }
-
+    
+    setShowTips(false);
     setIsLoading(true);
     setError(null);
     setRecipe(null);
@@ -178,6 +213,7 @@ const App: React.FC = () => {
     setRecipe(null);
     setOriginalRecipe(null);
     setError(null);
+    setShowTips(true);
   };
 
   return (
@@ -193,18 +229,23 @@ const App: React.FC = () => {
       <main className="container mx-auto px-4 py-12 md:py-20 flex-grow">
         <Header title={uiText.headerTitle} subtitle={uiText.headerSubtitle} />
         
-        <div className="max-w-2xl mx-auto mt-10 bg-white/70 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-lg border border-white/80">
-          <IngredientInput
-            ingredients={ingredients}
-            onIngredientsChange={setIngredients}
-            onGenerate={handleGenerateRecipe}
-            onReset={handleReset}
-            isLoading={isLoading}
-            uiText={uiText}
-          />
+        <div className="max-w-2xl mx-auto mt-10">
+          <div className="bg-white/70 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-lg border border-white/80">
+            <IngredientInput
+              ingredients={ingredients}
+              onIngredientsChange={setIngredients}
+              onGenerate={handleGenerateRecipe}
+              onReset={handleReset}
+              isLoading={isLoading}
+              uiText={uiText}
+            />
 
-          {error && <p className="mt-4 text-center text-red-600 font-semibold">{error}</p>}
+            {error && <p className="mt-4 text-center text-red-600 font-semibold">{error}</p>}
+          </div>
+
+          <UsageTips isVisible={showTips} tips={uiText.usageTips} />
         </div>
+
 
         {(isLoading || isTranslating) && <LoadingSpinner messages={isLoading ? uiText.loadingMessages : [uiText.translatingMessage]} />}
 
@@ -215,7 +256,7 @@ const App: React.FC = () => {
           />
         )}
       </main>
-      <Footer />
+      <Footer uiText={uiText} />
       <ScrollToTopButton />
     </div>
   );
