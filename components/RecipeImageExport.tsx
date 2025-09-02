@@ -7,7 +7,6 @@ interface RecipeImageExportProps {
   recipe: Recipe;
   layout?: ExportImageLayout;
   uiText: UiText;
-  isForPdf?: boolean;
 }
 
 const RecipeInfoItem: React.FC<{ icon: React.ReactNode; label: string; value: string; }> = ({ icon, label, value }) => (
@@ -18,15 +17,11 @@ const RecipeInfoItem: React.FC<{ icon: React.ReactNode; label: string; value: st
   </div>
 );
 
-const RecipeImageExport = forwardRef<HTMLDivElement, RecipeImageExportProps>(({ recipe, layout = 'desktop', uiText, isForPdf = false }, ref) => {
+const RecipeImageExport = forwardRef<HTMLDivElement, RecipeImageExportProps>(({ recipe, layout = 'desktop', uiText }, ref) => {
   const isMobile = layout === 'mobile';
 
   const getContainerClasses = () => {
     const baseClasses = "bg-white text-gray-800";
-    if (isForPdf) {
-      // A4 width is 210mm. This gives html2canvas a correctly proportioned element to capture.
-      return `${baseClasses} w-[210mm] p-[15mm] box-border`;
-    }
     if (isMobile) {
       return `${baseClasses} w-[450px] p-8`;
     }
@@ -35,10 +30,10 @@ const RecipeImageExport = forwardRef<HTMLDivElement, RecipeImageExportProps>(({ 
   };
   const containerClasses = getContainerClasses();
 
-  const titleClasses = (isMobile && !isForPdf)
+  const titleClasses = isMobile
     ? "text-3xl"
     : "text-4xl";
-  const sectionTitleClasses = (isMobile && !isForPdf)
+  const sectionTitleClasses = isMobile
     ? "text-xl"
     : "text-2xl";
 

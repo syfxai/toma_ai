@@ -15,7 +15,6 @@ interface RecipeDisplayProps {
 const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipe, uiText }) => {
   const exportImageRefDesktop = useRef<HTMLDivElement>(null);
   const exportImageRefMobile = useRef<HTMLDivElement>(null);
-  const exportPdfRef = useRef<HTMLDivElement>(null);
   
   const [isSavingImage, setIsSavingImage] = useState(false);
   const [isSavingPdf, setIsSavingPdf] = useState(false);
@@ -77,69 +76,125 @@ const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipe, uiText }) => {
   };
   
   const handleDownloadPdf = async () => {
-    if (!exportPdfRef.current) return;
     setIsSavingPdf(true);
-
-    // Create a clone to render off-screen at full A4 width to ensure mobile doesn't shrink it
-    const originalEl = exportPdfRef.current;
-    const clone = originalEl.cloneNode(true) as HTMLElement;
-    
-    // Style the clone to be rendered but invisible and not affect layout
-    clone.style.position = 'absolute';
-    clone.style.top = '0';
-    clone.style.left = '-9999px'; // Position it off-screen
-    clone.style.zIndex = '-1';
-    clone.style.width = '210mm'; // Force A4 width
-    
-    document.body.appendChild(clone);
-
     try {
-      // Allow the browser a moment to render the clone
-      await new Promise(resolve => setTimeout(resolve, 50));
-      
-      const canvas = await html2canvas(clone, {
-        scale: 2.5, // Higher scale for better PDF quality
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-      });
+        const doc = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4'
+        });
 
-      const imgData = canvas.toDataURL('image/png');
-      
-      // A4 dimensions in mm: 210 x 297
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-      });
+        // Set document properties
+        doc.setProperties({
+            title: recipe.recipeName,
+            subject: `A recipe for ${recipe.recipeName}`,
+            author: 'Toma AI Recipe Generator',
+        });
 
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const canvasWidth = canvas.width;
-      const canvasHeight = canvas.height;
-      const canvasAspectRatio = canvasWidth / canvasHeight;
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const margin = 15;
+        const contentWidth = pageWidth - margin * 2;
+        let y = margin; // Current y position
 
-      const margin = 15; // 15mm margin on each side
-      const contentWidth = pdfWidth - (margin * 2);
-      let contentHeight = contentWidth / canvasAspectRatio;
+        const checkPageBreak = (neededHeight: number) => {
+            if (y + neededHeight > pageHeight - margin) {
+                doc.addPage();
+                y = margin;
+            }
+        };
 
-      if (contentHeight > pdfHeight - (margin * 2)) {
-        contentHeight = pdfHeight - (margin * 2);
-      }
+        // --- TITLE ---
+        doc.setFont('Helvetica', 'bold');
+        doc.setFontSize(22);
+        doc.setTextColor(3, 105, 71); // Emerald-700
+        const titleLines = doc.splitTextToSize(recipe.recipeName, contentWidth);
+        doc.text(titleLines, pageWidth / 2, y, { align: 'center' });
+        y += titleLines.length * 10;
+        
+        // --- DESCRIPTION ---
+        checkPageBreak(15);
+        doc.setFont('Helvetica', 'italic');
+        doc.setFontSize(11);
+        doc.setTextColor(75, 85, 99); // Gray-500
+        const descriptionLines = doc.splitTextToSize(recipe.description, contentWidth);
+        doc.text(descriptionLines, margin, y);
+        y += (descriptionLines.length * 5) + 8;
+        
+        // --- RECIPE INFO ---
+        checkPageBreak(20);
+        doc.setDrawColor(229, 231, 235); // Gray-200
+        doc.line(margin, y, pageWidth - margin, y); // Top border
+        y += 8;
+        doc.setFont('Helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.setTextColor(17, 24, 39); // Gray-800
+        const infoItems = [
+            `${uiText.recipePrepTime}: ${recipe.prepTime}`,
+            `${uiText.recipeCookTime}: ${recipe.cookTime}`,
+            `${uiText.recipeTotalTime}: ${recipe.totalTime}`,
+            `${uiText.recipeServings}: ${recipe.servings}`,
+        ];
+        // Display info in two columns
+        doc.text(infoItems.slice(0, 2), margin, y);
+        doc.text(infoItems.slice(2, 4), pageWidth / 2, y);
+        y += 12;
+        doc.line(margin, y, pageWidth - margin, y); // Bottom border
+        y += 10;
+        
+        // --- INGREDIENTS ---
+        checkPageBreak(15);
+        doc.setFont('Helvetica', 'bold');
+        doc.setFontSize(16);
+        doc.setTextColor(4, 120, 87); // Emerald-600
+        doc.text(uiText.recipeIngredients, margin, y);
+        y += 8;
+        
+        doc.setFont('Helvetica', 'normal');
+        doc.setFontSize(11);
+        doc.setTextColor(55, 65, 81); // Gray-600
+        recipe.ingredients.forEach(ingredient => {
+            const lines = doc.splitTextToSize(`• ${ingredient}`, contentWidth - 5);
+            checkPageBreak(lines.length * 6);
+            doc.text(lines, margin + 5, y);
+            y += lines.length * 6;
+        });
+        y += 5;
 
-      const topPosition = (pdfHeight - contentHeight) / 2;
+        // --- INSTRUCTIONS ---
+        checkPageBreak(15);
+        doc.setFont('Helvetica', 'bold');
+        doc.setFontSize(16);
+        doc.setTextColor(4, 120, 87); // Emerald-600
+        doc.text(uiText.recipeInstructions, margin, y);
+        y += 8;
 
-      pdf.addImage(imgData, 'PNG', margin, topPosition, contentWidth, contentHeight);
-      pdf.save(`${recipe.recipeName.replace(/\s/g, '_')}_recipe.pdf`);
+        doc.setFont('Helvetica', 'normal');
+        doc.setFontSize(11);
+        doc.setTextColor(55, 65, 81); // Gray-600
+        recipe.instructions.forEach((step, index) => {
+            const lines = doc.splitTextToSize(`${index + 1}. ${step}`, contentWidth - 5);
+            checkPageBreak((lines.length * 6) + 3); // Add a little space between steps
+            doc.text(lines, margin + 5, y);
+            y += (lines.length * 6) + 3;
+        });
 
+        // --- FOOTER ---
+        const footerY = pageHeight - 10;
+        doc.setFontSize(8);
+        doc.setTextColor(156, 163, 175); // Gray-400
+        const footerText = `🍅 Toma AI Recipe Generator by Syafiq Haron`;
+        doc.text(footerText, pageWidth / 2, footerY, { align: 'center' });
+
+        doc.save(`${recipe.recipeName.replace(/\s/g, '_')}_recipe.pdf`);
     } catch (error) {
-      console.error('Error generating PDF:', error);
-      alert('Sorry, there was an error creating the PDF.');
+        console.error('Error generating PDF:', error);
+        alert('Sorry, there was an error creating the PDF.');
     } finally {
-      document.body.removeChild(clone); // Always clean up the clone
-      setIsSavingPdf(false);
+        setIsSavingPdf(false);
     }
   };
+
 
   const ExportButton: React.FC<{onClick: () => void, disabled?: boolean, icon: React.ReactNode, text: string}> = ({ onClick, disabled, icon, text }) => (
     <button
@@ -209,7 +264,6 @@ const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipe, uiText }) => {
       <div className="absolute -left-[9999px] -top-[9999px]">
         <RecipeImageExport recipe={recipe} ref={exportImageRefDesktop} layout="desktop" uiText={uiText} />
         <RecipeImageExport recipe={recipe} ref={exportImageRefMobile} layout="mobile" uiText={uiText} />
-        <RecipeImageExport recipe={recipe} ref={exportPdfRef} uiText={uiText} isForPdf={true} />
       </div>
     </>
   );
