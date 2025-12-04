@@ -16,7 +16,6 @@ export interface Recipe {
   instructions: string[];
 }
 
-// FIX: Added missing ShortenedRecipe type for the sharing feature.
 export interface ShortenedRecipe {
   n: string;
   d: string;
@@ -26,6 +25,13 @@ export interface ShortenedRecipe {
   s: string;
   i: string[];
   x: string[];
+}
+
+export interface FeedbackData {
+  rating: number;
+  name: string;
+  email: string;
+  comment: string;
 }
 
 export interface UiText {
@@ -55,15 +61,29 @@ export interface UiText {
   tagline: string;
   usageTips: string[];
   feedbackButton: string;
-  feedbackSubject: string;
-  // FIX: Added missing UiText properties for the sharing feature.
+  feedbackSubject: string; // Kept for backward compatibility or internal use
   shareTitle: string;
   shareInstructions: string;
   copyLinkButton: string;
   linkCopiedButton: string;
-  // Added for generation counter
   generationCounterText: string;
   generationCounterTextSingle: string;
+  
+  // New Feedback Form Text
+  feedbackTitle: string;
+  feedbackSubtitle: string;
+  labelName: string;
+  labelEmail: string;
+  labelRating: string;
+  labelComment: string;
+  placeholderName: string;
+  placeholderEmail: string;
+  placeholderComment: string;
+  submitFeedbackButton: string;
+  submittingFeedback: string;
+  feedbackSuccessTitle: string;
+  feedbackSuccessMessage: string;
+  closeButton: string;
 }
 
 export type ExportImageLayout = 'mobile' | 'desktop';

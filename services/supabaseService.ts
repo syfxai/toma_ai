@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import type { FeedbackData } from '../types';
 
 const supabaseUrl = 'https://kwlsvdnzpndkwcqaejep.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3bHN2ZG56cG5ka3djcWFlamVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3MzQyNDgsImV4cCI6MjA3MjMxMDI0OH0.P2j0GOBYSRvuF-Og93o3ONGU5C2mPNmyTBMCGldUy-A';
@@ -48,5 +49,40 @@ export const getGenerationCount = async (): Promise<number | null> => {
   } catch (error) {
     console.error('Error fetching generation count:', error);
     return null;
+  }
+};
+
+// Basic ping to keep the connection alive or wake up the DB
+export const keepAlive = async (): Promise<void> => {
+  try {
+    // Making a lightweight HEAD request to check connectivity
+    const { error } = await supabase
+      .from('toma_interactions')
+      .select('id', { count: 'exact', head: true });
+
+    if (error) throw error;
+    console.log('Supabase heartbeat sent 💓');
+  } catch (error) {
+    console.error('Supabase heartbeat failed:', error);
+  }
+};
+
+export const submitFeedback = async (data: FeedbackData): Promise<void> => {
+  try {
+    const userId = getUserId();
+    const { error } = await supabase
+      .from('toma_feedback')
+      .insert({
+        user_id: userId,
+        rating: data.rating,
+        name: data.name,
+        email: data.email,
+        comment: data.comment
+      });
+
+    if (error) throw error;
+  } catch (error) {
+    console.error('Error submitting feedback:', error);
+    throw new Error('Failed to submit feedback. Please try again.');
   }
 };
