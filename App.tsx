@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect } from 'react';
 import type { Language, Recipe, UiText, LanguageCode } from './types';
 import { generateRecipe, translateContent } from './services/geminiService';
@@ -59,6 +58,7 @@ const DEFAULT_UI_TEXT_EN: UiText = {
   translatingMessage: "Translating...",
   tagline: "Your AI Kitchen Assistant",
   usageTips: [
+    "Tip: Tap the microphone icon to speak your ingredients!",
     "Tip: List the ingredients you have, like 'chicken, soy sauce, ginger'.",
     "Tip: For a specific dish, just type its name, like 'Nasi Lemak recipe'.",
     "Tip: You can add constraints, e.g., 'chicken, rice, spicy, quick'.",
@@ -125,6 +125,7 @@ const DEFAULT_UI_TEXT_MS: UiText = {
   translatingMessage: "Menterjemah...",
   tagline: "Chef AI Peribadi Anda",
   usageTips: [
+    "Tips: Tekan ikon mikrofon untuk menyebut bahan masakan anda!",
     "Tips: Senaraikan bahan-bahan yang anda ada, cth: 'ayam, kicap, halia'.",
     "Tips: Untuk resepi spesifik, taip nama masakan, cth: 'resepi Nasi Lemak'.",
     "Tips: Anda boleh tambah arahan, cth: 'ayam, nasi, pedas, cepat'.",
@@ -326,6 +327,7 @@ const App: React.FC = () => {
               onReset={handleReset}
               isLoading={isLoading}
               uiText={uiText}
+              currentLanguage={language}
             />
 
             {error && <p className="mt-4 text-center text-red-600 font-semibold bg-red-50/50 p-2 rounded-lg border border-red-100">{error}</p>}

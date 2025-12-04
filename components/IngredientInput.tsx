@@ -1,6 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
-import type { UiText } from '../types';
+import type { UiText, LanguageCode } from '../types';
+import VoiceInput from './VoiceInput';
 
 interface IngredientInputProps {
   ingredients: string;
@@ -9,6 +9,7 @@ interface IngredientInputProps {
   onReset: () => void;
   isLoading: boolean;
   uiText: UiText;
+  currentLanguage: LanguageCode;
 }
 
 const IngredientInput: React.FC<IngredientInputProps> = ({
@@ -18,6 +19,7 @@ const IngredientInput: React.FC<IngredientInputProps> = ({
   onReset,
   isLoading,
   uiText,
+  currentLanguage
 }) => {
   const [progress, setProgress] = useState(0);
 
@@ -45,19 +47,40 @@ const IngredientInput: React.FC<IngredientInputProps> = ({
     }
   }, [isLoading]);
 
+  const handleVoiceResult = (text: string) => {
+    // Append text if ingredients already exist, otherwise set it
+    const newIngredients = ingredients 
+      ? `${ingredients}, ${text}` 
+      : text;
+    onIngredientsChange(newIngredients);
+  };
+
   return (
     <div className="w-full">
       <label htmlFor="ingredients" className="block text-lg font-semibold text-gray-800 mb-2">
         {uiText.inputLabel}
       </label>
-      <textarea
-        id="ingredients"
-        value={ingredients}
-        onChange={(e) => onIngredientsChange(e.target.value)}
-        placeholder={uiText.inputPlaceholder}
-        className="w-full h-32 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-shadow duration-200 resize-none text-gray-800 bg-white"
-        disabled={isLoading}
-      />
+      
+      <div className="relative">
+        <textarea
+          id="ingredients"
+          value={ingredients}
+          onChange={(e) => onIngredientsChange(e.target.value)}
+          placeholder={uiText.inputPlaceholder}
+          className="w-full h-32 p-4 pr-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-shadow duration-200 resize-none text-gray-800 bg-white"
+          disabled={isLoading}
+        />
+        
+        {/* Voice Input Button positioned inside textarea */}
+        <div className="absolute bottom-3 right-3 z-10">
+          <VoiceInput 
+            onResult={handleVoiceResult} 
+            languageCode={currentLanguage}
+            disabled={isLoading}
+          />
+        </div>
+      </div>
+
       <div className="mt-5 w-full flex items-center gap-3">
         <button
           onClick={onReset}
@@ -88,7 +111,7 @@ const IngredientInput: React.FC<IngredientInputProps> = ({
             className={`absolute inset-0 bg-gray-200 transition-opacity duration-300 ${isLoading ? 'opacity-100' : 'opacity-0'}`}
           ></div>
 
-          {/* Loading Progress Bar (The "Progression" part) - Removed stripes animation for cleaner look */}
+          {/* Loading Progress Bar (The "Progression" part) */}
           <div 
              className="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-600 to-teal-600 transition-all duration-700 ease-out"
              style={{ 
