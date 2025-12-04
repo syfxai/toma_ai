@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect } from 'react';
 import type { Language, Recipe, UiText, LanguageCode } from './types';
 import { generateRecipe, translateContent } from './services/geminiService';
@@ -12,6 +13,7 @@ import ScrollToTopButton from './components/ScrollToTopButton';
 import UsageTips from './components/UsageTips';
 import GenerationCounter from './components/GenerationCounter';
 import FeedbackModal from './components/FeedbackModal';
+import AdminModal from './components/AdminModal';
 
 const LANGUAGES: Language[] = [
   { code: 'ms', name: 'Bahasa Melayu' },
@@ -169,6 +171,7 @@ const App: React.FC = () => {
   const [showTips, setShowTips] = useState<boolean>(true);
   const [generationCount, setGenerationCount] = useState<number | null>(null);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
 
   useEffect(() => {
     // Fetch initial count
@@ -337,7 +340,13 @@ const App: React.FC = () => {
         )}
       </main>
       {generationCount !== null && <GenerationCounter count={generationCount} uiText={uiText} />}
-      <Footer uiText={uiText} onOpenFeedback={() => setIsFeedbackOpen(true)} />
+      
+      <Footer 
+        uiText={uiText} 
+        onOpenFeedback={() => setIsFeedbackOpen(true)}
+        onOpenAdmin={() => setIsAdminOpen(true)} 
+      />
+      
       <ScrollToTopButton />
 
       {isFeedbackOpen && (
@@ -345,6 +354,10 @@ const App: React.FC = () => {
           uiText={uiText} 
           onClose={() => setIsFeedbackOpen(false)} 
         />
+      )}
+
+      {isAdminOpen && (
+        <AdminModal onClose={() => setIsAdminOpen(false)} />
       )}
     </div>
   );

@@ -1,3 +1,4 @@
+
 export type LanguageCode = string;
 
 export interface Language {
@@ -32,6 +33,12 @@ export interface FeedbackData {
   name: string;
   email: string;
   comment: string;
+}
+
+export interface FeedbackItem extends FeedbackData {
+  id: number;
+  created_at: string;
+  user_id?: string;
 }
 
 export interface UiText {

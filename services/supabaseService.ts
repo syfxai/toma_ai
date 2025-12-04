@@ -1,5 +1,6 @@
+
 import { createClient } from '@supabase/supabase-js';
-import type { FeedbackData } from '../types';
+import type { FeedbackData, FeedbackItem } from '../types';
 
 const supabaseUrl = 'https://kwlsvdnzpndkwcqaejep.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3bHN2ZG56cG5ka3djcWFlamVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3MzQyNDgsImV4cCI6MjA3MjMxMDI0OH0.P2j0GOBYSRvuF-Og93o3ONGU5C2mPNmyTBMCGldUy-A';
@@ -84,5 +85,20 @@ export const submitFeedback = async (data: FeedbackData): Promise<void> => {
   } catch (error) {
     console.error('Error submitting feedback:', error);
     throw new Error('Failed to submit feedback. Please try again.');
+  }
+};
+
+export const getFeedbackList = async (): Promise<FeedbackItem[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('toma_feedback')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data as FeedbackItem[];
+  } catch (error) {
+    console.error('Error fetching feedback list:', error);
+    throw new Error('Failed to load feedback data.');
   }
 };
