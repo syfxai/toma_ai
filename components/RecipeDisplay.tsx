@@ -1,3 +1,4 @@
+
 import React, { useRef, useState } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -140,7 +141,7 @@ const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipe, uiText }) => {
     <button
       onClick={onClick}
       disabled={disabled}
-      className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm border border-gray-200/80 rounded-full shadow-md text-sm font-medium text-gray-700 hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all disabled:opacity-50 disabled:cursor-wait"
+      className="flex items-center gap-2 px-4 py-2 bg-white/60 backdrop-blur-md border border-white/60 rounded-full shadow-sm text-sm font-medium text-gray-700 hover:bg-white hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all disabled:opacity-50 disabled:cursor-wait"
     >
       {icon}
       <span>{text}</span>
@@ -149,8 +150,8 @@ const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipe, uiText }) => {
 
   return (
     <>
-      {/* Main view */}
-      <div className="max-w-4xl mx-auto mt-12 bg-white/70 backdrop-blur-sm p-6 md:p-10 rounded-2xl shadow-lg border border-white/80 animate-fadeInUp">
+      {/* Main view - Enhanced Glassmorphism */}
+      <div className="max-w-4xl mx-auto mt-12 bg-white/60 backdrop-blur-xl p-6 md:p-10 rounded-2xl shadow-xl border border-white/40 ring-1 ring-white/50 animate-fadeInUp">
         <div className="text-center mb-8">
           <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent pb-2">
             {recipe.recipeName}
@@ -160,7 +161,7 @@ const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipe, uiText }) => {
         
         <RecipeInfo recipe={recipe} uiText={uiText} />
 
-        <div className="text-center my-8 py-4 border-y border-gray-200/80">
+        <div className="text-center my-8 py-4 border-y border-gray-200/60">
           <h4 className="text-sm font-bold uppercase text-gray-500 tracking-wider mb-4">{uiText.exportTitle}</h4>
           <div className="flex flex-wrap justify-center items-center gap-4">
               <ExportButton onClick={handleDownloadTxt} icon={<FileTextIcon className="w-5 h-5 text-emerald-700" />} text={uiText.saveAsText} />
@@ -180,7 +181,7 @@ const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipe, uiText }) => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="bg-emerald-50/50 p-6 rounded-xl">
+          <div className="bg-emerald-50/50 p-6 rounded-xl border border-emerald-100/50">
             <h3 className="text-2xl font-semibold mb-4 border-b-2 border-emerald-300 pb-2 text-emerald-800">{uiText.recipeIngredients}</h3>
             <ul className="list-disc list-inside space-y-3 text-gray-700">
               {recipe.ingredients.map((ingredient, index) => (
@@ -189,7 +190,7 @@ const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipe, uiText }) => {
             </ul>
           </div>
           
-          <div className="bg-emerald-50/50 p-6 rounded-xl animate-fadeInUp">
+          <div className="bg-emerald-50/50 p-6 rounded-xl border border-emerald-100/50 animate-fadeInUp">
             <h3 className="text-2xl font-semibold mb-4 border-b-2 border-emerald-300 pb-2 text-emerald-800">{uiText.recipeInstructions}</h3>
             <ol className="list-decimal list-outside space-y-4 text-gray-700 leading-relaxed ml-5">
               {recipe.instructions.map((step, index) => (

@@ -14,6 +14,7 @@ import UsageTips from './components/UsageTips';
 import GenerationCounter from './components/GenerationCounter';
 import FeedbackModal from './components/FeedbackModal';
 import AdminModal from './components/AdminModal';
+import BackgroundDecorations from './components/BackgroundDecorations';
 
 const LANGUAGES: Language[] = [
   { code: 'ms', name: 'Bahasa Melayu' },
@@ -124,13 +125,13 @@ const DEFAULT_UI_TEXT_MS: UiText = {
   translatingMessage: "Menterjemah...",
   tagline: "Chef AI Peribadi Anda",
   usageTips: [
-    "Petua: Senaraikan bahan-bahan yang anda ada, cth: 'ayam, kicap, halia'.",
-    "Petua: Untuk resepi spesifik, taip nama masakan, cth: 'resepi Nasi Lemak'.",
-    "Petua: Anda boleh tambah arahan, cth: 'ayam, nasi, pedas, cepat'.",
-    "Petua: Tukar bahasa menggunakan butang di penjuru kanan atas.",
-    "Petua: Resepi tidak disimpan! Guna butang muat turun untuk simpan.",
-    "Petua: Simpan resepi kegemaran anda sebagai PDF untuk cetakan mudah!",
-    "Petua: Untuk tempahan aplikasi, hubungi pembangun melalui pautan maklum balas di bawah.",
+    "Tips: Senaraikan bahan-bahan yang anda ada, cth: 'ayam, kicap, halia'.",
+    "Tips: Untuk resepi spesifik, taip nama masakan, cth: 'resepi Nasi Lemak'.",
+    "Tips: Anda boleh tambah arahan, cth: 'ayam, nasi, pedas, cepat'.",
+    "Tips: Tukar bahasa menggunakan butang di penjuru kanan atas.",
+    "Tips: Resepi tidak disimpan! Guna butang muat turun untuk simpan.",
+    "Tips: Simpan resepi kegemaran anda sebagai PDF untuk cetakan mudah!",
+    "Tips: Untuk tempahan aplikasi, hubungi pembangun melalui pautan maklum balas di bawah.",
   ],
   feedbackButton: "Maklum Balas",
   feedbackSubject: "Maklumbalas Aplikasi Toma",
@@ -298,7 +299,12 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-100 text-gray-800 antialiased flex flex-col">
+    // Update main container to remove bg color so decorations show through
+    <div className="min-h-screen relative text-gray-800 antialiased flex flex-col overflow-x-hidden">
+      
+      {/* Animated Background */}
+      <BackgroundDecorations />
+
       <div className="absolute top-0 right-0 p-4 z-10">
         <LanguageSelector 
           currentLanguage={language} 
@@ -307,11 +313,12 @@ const App: React.FC = () => {
           isDisabled={isTranslating || isLoading}
         />
       </div>
-      <main className="container mx-auto px-4 py-12 md:py-20 flex-grow">
+      <main className="container mx-auto px-4 py-12 md:py-20 flex-grow relative z-0">
         <Header title={uiText.headerTitle} subtitle={uiText.headerSubtitle} />
         
         <div className="max-w-2xl mx-auto mt-10">
-          <div className="bg-white/70 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-lg border border-white/80">
+          {/* Glass Card for Input */}
+          <div className="bg-white/60 backdrop-blur-xl p-6 md:p-8 rounded-2xl shadow-xl border border-white/40 ring-1 ring-white/50">
             <IngredientInput
               ingredients={ingredients}
               onIngredientsChange={setIngredients}
@@ -321,7 +328,7 @@ const App: React.FC = () => {
               uiText={uiText}
             />
 
-            {error && <p className="mt-4 text-center text-red-600 font-semibold">{error}</p>}
+            {error && <p className="mt-4 text-center text-red-600 font-semibold bg-red-50/50 p-2 rounded-lg border border-red-100">{error}</p>}
           </div>
 
           <UsageTips isVisible={showTips} tips={uiText.usageTips} />
@@ -339,6 +346,7 @@ const App: React.FC = () => {
           </div>
         )}
       </main>
+      
       {generationCount !== null && <GenerationCounter count={generationCount} uiText={uiText} />}
       
       <Footer 
